@@ -1,0 +1,16 @@
+{
+  "description": "Check build size after compilation and warn if approaching limits",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash.*build|Bash.*webpack|Bash.*gulp",
+        "hooks": [
+          {
+            "type": "command", 
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/size-checker.py"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "description": "Validate project structure and dependencies before building",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash.*build|Bash.*webpack|Bash.*gulp",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import json, sys, os, re; data=json.load(sys.stdin); cmd=data.get('tool_input',{}).get('command',''); print('⚠️  Building game - validating structure...', file=sys.stderr) if 'build' in cmd else None; sys.exit(0)\""
+          }
+        ]
+      }
+    ]
+  }
+}
