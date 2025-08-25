@@ -1,4 +1,26 @@
-.claude/*
+.claude/
 node_modules/
 package-lock.json
 CLAUDE.md
+
+# Build outputs
+dist/
+submission.zip
+
+# Generated single-file build (root)
+index.html
+submission.html
+
+# OS/editor cruft
+.DS_Store
+.vscode/
+.idea/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Misc
+coverage/
