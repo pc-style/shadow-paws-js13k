@@ -19,7 +19,7 @@
     
     "size": "node build/analyze-clean.js --quick",
     
-    "zip": "zip -9 submission.zip submission.html",
+    "zip": "zip -9 submission.zip index.html",
     "check-limit": "node -e \"const fs=require('fs'); const size=fs.existsSync('submission.zip')?fs.statSync('submission.zip').size:0; const limit=13312; console.log('ZIP: '+size+' bytes, Limit: '+limit+' bytes, '+(size<=limit?'✅ OK':'❌ OVER'));\"",
     
     "clean": "rm -rf dist/* submission.* *.zip",

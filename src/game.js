@@ -84,7 +84,7 @@ const cat = {
   targetX: canvas.width / 2,
   targetY: canvas.height - 100,
   tail: [],
-  dashTimer: 0,
+
   eyeBlink: 0,
   emotion: 'neutral', // happy, scared, focused
   purring: false
@@ -160,10 +160,7 @@ document.addEventListener('keydown', e => {
     if (key === '2' || key === 'e') activatePowerUp('nightVision');
     if (key === '3' || key === 'r') activatePowerUp('nineLives');
     
-    // Dash ability with spacebar/shift
-    if ((key === ' ' || key === 'shift') && hasPowerUp('pounce')) {
-      cat.dashTimer = 15;
-    }
+
   }
 });
 
@@ -346,7 +343,6 @@ function updateSpecialEvents() {
 // --- Adorable Cat Drawing --- I SUCK AT THIS -- GEMINI TY FOR SAVING ME
 function drawCat() {
   let bodyColor = invincible ? '#9333ea' : '#2a2a2a'; // Purple when invincible, else dark grey
-  if (cat.dashTimer > 0) bodyColor = '#ff4757'; // Red when dashing
   if (hasPowerUp('pounce')) bodyColor = '#ff6b6b';
   if (hasPowerUp('nightVision')) bodyColor = '#5fd3d3';
   if (hasPowerUp('nineLives')) bodyColor = '#6bc5e8';
@@ -635,14 +631,7 @@ function drawStars() {
 // --- Update Functions ---
 function updateCat() {
   let moveSpeed = cat.speed * (1 + level * 0.1);
-  let dashMultiplier = 1;
-  
-  // Dash timer handling
-  if (cat.dashTimer > 0) {
-    cat.dashTimer--;
-    dashMultiplier = 3;
-    cat.emotion = 'focused';
-  }
+
   
   // Pounce power-up increases speed
   if (hasPowerUp('pounce')) {
@@ -653,20 +642,20 @@ function updateCat() {
   // Enhanced keyboard controls
   if (keyboardMode) {
     if (keys['arrowleft'] || keys['a']) {
-      cat.targetX -= moveSpeed * dashMultiplier;
-      cat.vx = Math.min(cat.vx - 1, -moveSpeed * dashMultiplier * 0.3);
+      cat.targetX -= moveSpeed;
+      cat.vx = Math.min(cat.vx - 1, -moveSpeed * 0.3);
     }
     if (keys['arrowright'] || keys['d']) {
-      cat.targetX += moveSpeed * dashMultiplier;
-      cat.vx = Math.max(cat.vx + 1, moveSpeed * dashMultiplier * 0.3);
+      cat.targetX += moveSpeed;
+      cat.vx = Math.max(cat.vx + 1, moveSpeed * 0.3);
     }
     if (keys['arrowup'] || keys['w']) {
-      cat.targetY -= moveSpeed * dashMultiplier;
-      cat.vy = Math.min(cat.vy - 1, -moveSpeed * dashMultiplier * 0.3);
+      cat.targetY -= moveSpeed;
+      cat.vy = Math.min(cat.vy - 1, -moveSpeed * 0.3);
     }
     if (keys['arrowdown'] || keys['s']) {
-      cat.targetY += moveSpeed * dashMultiplier;
-      cat.vy = Math.max(cat.vy + 1, moveSpeed * dashMultiplier * 0.3);
+      cat.targetY += moveSpeed;
+      cat.vy = Math.max(cat.vy + 1, moveSpeed * 0.3);
     }
   }
 
@@ -685,15 +674,15 @@ function updateCat() {
     cat.y += cat.vy;
   }
   
-  // Enhanced paw prints with dash effect
+  // Enhanced paw prints
   const dist = Math.sqrt((cat.x - oldX) ** 2 + (cat.y - oldY) ** 2);
-  if (dist > 2 && Math.random() < (cat.dashTimer > 0 ? 0.8 : 0.3)) {
-    pawPrints.push({ 
-      x: oldX, 
-      y: oldY, 
-      life: cat.dashTimer > 0 ? 90 : 60, 
-      alpha: cat.dashTimer > 0 ? 1.2 : 0.8,
-      size: cat.dashTimer > 0 ? 16 : 12
+  if (dist > 2 && Math.random() < 0.3) {
+    pawPrints.push({
+      x: oldX,
+      y: oldY,
+      life: 60,
+      alpha: 0.8,
+      size: 12
     });
   }
 
@@ -983,6 +972,7 @@ function startGame() {
 }
 
 function endGame() {
+  console.log('Game Over! Lives:', lives, 'Score:', score);
   gameStarted = false;
   totalGamesPlayed++;
   setStorage('totalGames', totalGamesPlayed);
@@ -1022,6 +1012,7 @@ function endGame() {
   finalHighScoreEl.textContent = highScore;
   
   // Show game over screen using new menu system
+  console.log('Calling showMenu with gameOver');
   showMenu('gameOver');
 }
 
@@ -1130,11 +1121,14 @@ function gameLoop() {
 
 // Menu State Management
 function showMenu(menuName) {
+    console.log('showMenu called with:', menuName);
     // Hide all menus
     [mainMenu, playMenu, tutorialScreen, achievementsScreen, statsScreen, settingsScreen, gameOverScreen].forEach(menu => {
         if (menu) {
             menu.classList.add('hidden');
             menu.classList.remove('show');
+            // Clear any inline display that might have been set previously
+            menu.style.display = '';
         }
     });
     
@@ -1153,6 +1147,10 @@ function showMenu(menuName) {
     if (targetMenu) {
         targetMenu.classList.remove('hidden');
         targetMenu.classList.add('show');
+        // Ensure game over becomes visible even if previously set to display:none
+        if (menuName === 'gameOver') {
+            targetMenu.style.display = 'block';
+        }
         currentMenu = menuName;
     }
 }

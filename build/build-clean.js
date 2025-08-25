@@ -36,32 +36,10 @@ const JS13K_OPTIMIZATIONS = {
   }
 };
 
-// Pre-processing optimizations before minification
+// Skip pre-processing optimizations to avoid syntax errors
 function preOptimizeJS(code) {
-  let optimized = code;
-  
-  // Replace common strings with shorter variables
-  let shortcuts = 'const ';
-  const shortcutEntries = Object.entries(JS13K_OPTIMIZATIONS.commonStrings);
-  shortcutEntries.forEach(([long, short], i) => {
-    shortcuts += `${short}=${long}${i < shortcutEntries.length - 1 ? ',' : ';'}`;
-    // Replace all occurrences with the shortcut
-    optimized = optimized.replace(new RegExp(long.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), short);
-  });
-  
-  // Add shortcuts at the top
-  optimized = shortcuts + optimized;
-  
-  // Additional micro-optimizations  
-  optimized = optimized
-    // Replace true/false with 1/0 where safe
-    .replace(/\btrue\b/g, '!0')
-    .replace(/\bfalse\b/g, '!1')
-    // Replace ===0 with ==0 (smaller)
-    .replace(/===\s*0\b/g, '==0')
-    .replace(/!==\s*0\b/g, '!=0');
-  
-  return optimized;
+  // Return code unchanged to avoid any potential syntax issues
+  return code;
 }
 
 async function buildJS13K() {
@@ -139,7 +117,7 @@ async function buildJS13K() {
       .replace(/<link[^>]*href="?style\.css"?[^>]*>/g, `<style>${minifiedCSS}</style>`)
       .replace(/<script[^>]*src="?game\.js"?[^>]*><\/script>/g, `<script>${minifiedJS}</script>`);
     
-    fs.writeFileSync('submission.html', submissionHTML);
+    fs.writeFileSync('index.html', submissionHTML);
     
     // Step 7: Generate size report
     console.log('\n📊 Minification results:');
@@ -159,7 +137,7 @@ async function buildJS13K() {
     const { execSync } = require('child_process');
     
     try { fs.unlinkSync('submission.zip'); } catch(e) {}
-    execSync('zip -9 submission.zip submission.html');
+    execSync('zip -9 submission.zip index.html');
     
     const zipStats = fs.statSync('submission.zip');
     const zipSize = zipStats.size;
